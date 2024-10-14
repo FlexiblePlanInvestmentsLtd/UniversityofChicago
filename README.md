@@ -1,1 +1,1 @@
-# UniversityofChicago
+# University of Chicago
