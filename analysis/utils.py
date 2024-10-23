@@ -36,10 +36,13 @@ def weekly_returns(data):
     data.drop(columns=['weekday', 'trading_day'], inplace=True)
 
     grouped = data.groupby(['week']).agg(comp_ret)
+    # grouped = data.groupby(['week']).apply(lambda x: (np.prod(1 + x) - 1))
     grouped_dates = data.reset_index().loc[:, ['Date', 'week']]
-    grouped_dates['Date'] = grouped_dates['Date'].shift(1)
+    grouped_dates['Date'] = grouped_dates['Date']
     grouped_dates = grouped_dates.groupby(['week']).max()
     weekly_returns = pd.merge(left=grouped_dates, right=grouped, right_index=True, left_index=True)
+    weekly_returns.index = weekly_returns.Date
+    weekly_returns.drop(columns='Date', inplace=True)
 
     return weekly_returns.dropna()
 
@@ -85,3 +88,60 @@ def calculate_macd(df, return_columns, short_period=12, long_period=26, signal_p
         macd_df[f'MACD_Histogram_{col}'] = macd_histogram
     
     return macd_df.dropna()
+
+def calculate_rsi(data, window=14):
+    """
+    Calculate the Relative Strength Index (RSI) for a pandas DataFrame or Series that contains
+    daily return data.
+    
+    Parameters:
+    data (pd.Series or pd.DataFrame): Daily returns.
+    window (int): The period for calculating RSI, default is 14.
+    
+    Returns:
+    pd.Series: RSI values.
+    """
+    # Positive and negative gains
+    gain = np.where(data > 0, data, 0)
+    loss = np.where(data < 0, -data, 0)
+    
+    # Convert to pandas Series
+    if isinstance(data, pd.DataFrame):
+        gain = pd.DataFrame(gain, index=data.index, columns=data.columns)
+        loss = pd.DataFrame(loss, index=data.index, columns=data.columns)
+    else:
+        gain = pd.Series(gain, index=data.index)
+        loss = pd.Series(loss, index=data.index)
+
+    # Calculate the rolling average gain and loss
+    avg_gain = gain.rolling(window=window, min_periods=window).mean()
+    avg_loss = loss.rolling(window=window, min_periods=window).mean()
+
+    # Calculate the Relative Strength (RS)
+    rs = avg_gain / avg_loss
+
+    # Calculate the RSI
+    rsi = 100 - (100 / (1 + rs))
+
+    return rsi.dropna()
+
+def calc_ewma_volatility(
+        excess_returns: pd.Series,
+        theta : float = 0.94,
+        initial_vol : float = .2 / np.sqrt(252),
+        return_columns = None
+    ) -> pd.Series:
+
+    ewma_df = pd.DataFrame(index=excess_returns.index)
+    
+    for col in return_columns:
+        var_t0 = initial_vol ** 2
+        ewma_var = [var_t0]
+        for d in excess_returns.index:
+            new_ewma_var = ewma_var[-1] * theta + (excess_returns.loc[d, col] ** 2) * (1 - theta)
+            ewma_var.append(new_ewma_var)
+        ewma_var.pop(0) # Remove var_t0
+        ewma_vol = [np.sqrt(v) for v in ewma_var]
+        ewma_df[f'EWMA_vol_{col}'] = ewma_vol
+
+    return ewma_df
