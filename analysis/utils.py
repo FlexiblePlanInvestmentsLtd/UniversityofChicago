@@ -13,6 +13,7 @@ import statsmodels.api as sm
 from sklearn.linear_model import LinearRegression
 from scipy.stats import norm
 from arch import arch_model
+import talib
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -64,7 +65,7 @@ def weekly_returns(data):
 
     return weekly_returns.dropna()
 
-def calculate_roc(df, return_columns, period):
+def calculate_roc(df, period):
     """
     Calculate ROC for each asset based on cumulative returns over a specified period.
     
@@ -73,13 +74,10 @@ def calculate_roc(df, return_columns, period):
     :param period: The number of periods to calculate cumulative returns (ROC)
     :return: DataFrame with ROC for each asset
     """
-    roc_df = pd.DataFrame(index=df.index)
+    df = df.rolling(window=period).apply(lambda x: np.prod(1 + x) - 1, raw=False)
+    df.columns = [f'ROC{period}_{col}' for col in df.columns]
     
-    for col in return_columns:
-        # Calculate the cumulative product of (1 + returns) for the given period, then subtract 1
-        roc_df[f'ROC_{col}'] = df[col].rolling(window=period).apply(lambda x: (np.prod(1 + x) - 1), raw=False)
-    
-    return roc_df.dropna()
+    return df
 
 def calculate_macd(df, return_columns, short_period=12, long_period=26, signal_period=9):
     """
@@ -140,8 +138,26 @@ def calculate_rsi(data, window=14):
 
     # Calculate the RSI
     rsi = 100 - (100 / (1 + rs))
+    rsi.columns = ['rsi_' + col for col in rsi.columns]
+    stoch_rsi = ((rsi - rsi.rolling(window=window).min()) / 
+                 (rsi.rolling(window=window).max() - rsi.rolling(window=window).min()))
+    stoch_rsi.columns = ['stoch_' + col for col in stoch_rsi.columns]
+    rsi = pd.concat([rsi, stoch_rsi], axis=1)
 
     return rsi.dropna()
+
+def calc_hilbert(returns):
+    data = (1 + returns).cumprod()
+    ht_transform = pd.DataFrame()
+
+    for asset in returns.columns:
+        ht_transform['ht_dcperiod_' + asset] = talib.HT_DCPERIOD(data[asset])                   # Calculate Hilbert Transform - Dominant Cycle Period
+        ht_transform['ht_dcphase_' + asset] = talib.HT_DCPHASE(data[asset])                     # Calculate Hilbert Transform - Dominant Cycle Phase
+        ht_transform['inphase_' + asset], data['quadrature'] = talib.HT_PHASOR(data[asset])     # Calculate Hilbert Transform - Phasor Components
+        ht_transform['sine_' + asset], data['leadsine'] = talib.HT_SINE(data[asset])            # Calculate Hilbert Transform - SineWave
+        ht_transform['ht_trendmode_' + asset] = talib.HT_TRENDMODE(data[asset])                 # Calculate Hilbert Transform - Trend vs Cycle Mode
+
+    return ht_transform.dropna()
 
 def calc_ewma_volatility(
         excess_returns: pd.Series,
