@@ -146,6 +146,36 @@ def calculate_rsi(data, window=14):
 
     return rsi.dropna()
 
+def calculate_bollinger_bands(data, window=20, num_std=2):
+    """
+    Compute Bollinger Bands for a given dataset of daily percent returns.
+
+    Parameters:
+    - data (pd.DataFrame): A DataFrame of daily percent return data.
+    - window (int): The rolling window size for the moving average (default is 20).
+    - num_std (int): Number of standard deviations for the bands (default is 2).
+
+    Returns:
+    - pd.DataFrame: Original data with additional columns for MA, Upper Band, and Lower Band.
+    """
+    # Calculate the moving average and rolling standard deviation
+    rolling_mean = data.rolling(window=window).mean()
+    rolling_std = data.rolling(window=window).std()
+    
+    # Calculate upper and lower Bollinger Bands
+    upper_band = rolling_mean + (rolling_std * num_std)
+    lower_band = rolling_mean - (rolling_std * num_std)
+    
+    # Update column names
+    rolling_mean.columns = [f'sma{window}_{col}' for col in data.columns]
+    upper_band.columns = [f'upper{window}_{col}' for col in data.columns]
+    lower_band.columns = [f'lower{window}_{col}' for col in data.columns]
+    
+    # Combine everything into a DataFrame
+    bollinger_df = pd.concat([rolling_mean, upper_band, lower_band], axis=1)
+    
+    return bollinger_df.dropna()
+
 def calc_hilbert(returns):
     data = (1 + returns).cumprod()
     ht_transform = pd.DataFrame()
