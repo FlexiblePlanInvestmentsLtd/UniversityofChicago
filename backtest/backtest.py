@@ -6,7 +6,7 @@ from dateutil.relativedelta import relativedelta
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
-from sklearn.model_selection import GridSearchCV, StratifiedKFold
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, RandomizedSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
@@ -14,15 +14,20 @@ from sklearn.metrics import accuracy_score, f1_score
 
 import sys
 import os
-from joblib import Memory
+import logging
+import threading
+from joblib import Memory, parallel_backend
 import joblib
+from ray.util.joblib import register_ray
+import ray
+register_ray()
 
 current_dir = os.getcwd()
 parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 grandparent_dir = os.path.abspath(os.path.join(parent_dir, os.pardir))
 sys.path.insert(0, parent_dir)
 sys.path.insert(0, grandparent_dir)
-from analysis.utils import *
+from utils import *
 
 # TODO: Add a logger for model training details
 class MissingHistoricalReturns(Exception):
@@ -33,6 +38,7 @@ class FeaturesTargetsLengthException(Exception):
     def __init__(self, feature_name, feature_len, target_len):
         message = f'{feature_name} has length {feature_len}, which is different from target length of {target_len}'
         super().__init__(message)
+
 
 class Backtest:
     # Note: This class could be generalized to a base class that has child classes for backtesting different
@@ -138,17 +144,22 @@ class Backtest:
                              param_grid=param_grid)#, dump_version=f'mod_backtest_{self.lookbacks[i]}')
             
             # L.2. Generate Predictions and update the self.predictions attribute
+            start = self.lookbacks[i] + timedelta(days=1)
+            end = self.lookbacks[i + 1] if i < len(self.lookbacks) - 1 else None    # TODO: This seems to be causing problems with the number of predictions
             preds = pd.DataFrame(columns=assets)
             for name, frame in self.assets.items():
-                start = self.lookbacks[i] + timedelta(days=1)
-                end = self.lookbacks[i + 1] if i < len(self.lookbacks) - 1 else None    # TODO: This seems to be causing problems with the number of predictions
                 try:
-                    preds[name] = self.generate_preds(frame.loc[start:end])
+                    n_preds = self.generate_preds(frame.loc[start:end])
+                    if (miss := self.update_freq - len(n_preds)) > 0 and i != 0 and i != len(self.lookbacks) - 1:   
+                        # For datasets with assets that have different history lengths, we need to pad the front-end of the history with 0's
+                        n_preds = np.pad(n_preds, (miss, 0), 'constant', constant_values=(0,0))
+                    preds[name] = n_preds
                 except ValueError:
                     preds[name] = 0
             
             try:
                 self.predictions = pd.concat([self.predictions, preds], axis=0)
+                print(f'Completed predictions for period {i + 1} of {len(self.lookbacks)}')
             except ValueError:
                 print('ValueError raised, refer to below pandas objects for reference.')
                 print(self.predictions, preds)
@@ -183,38 +194,88 @@ class Classifier:
     def __init__(self, model):
         self.pipeline = None
         self.model = model
-
+        self._params_hist = []
+        
+        # Attempting to speed up training with parallelism
+        ray.init(address='auto', 
+                 logging_level=logging.FATAL, 
+                 log_to_driver=False, ignore_reinit_error=True)
+        
     def train(self, param_grid, features, target):
         memory = Memory(location='cache_dir', verbose=0)
         pipeline = Pipeline([
-            # ('scaler', MinMaxScaler()),
-            # ('pca', PCA()),
+            ('scaler', MinMaxScaler()),
+            ('pca', PCA()),
             ('classifier', self.model)
         ], memory=memory)
 
         cv = StratifiedKFold(n_splits=5)
-        grid_search = GridSearchCV(pipeline, param_grid=param_grid, cv=cv)
-        grid_search.fit(features, target)
-        # print(grid_search.best_params_)
+        grid_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, cv=cv)
+        
+        with parallel_backend('ray'):   # Attempting to speed up training with parallelism
+            grid_search.fit(features, target)
+            # print(grid_search.best_params_)
+        
+        self._params_hist.append(grid_search.best_params_)
         self.pipeline = grid_search.best_estimator_
 
     def predict(self, data):
         return self.pipeline.predict(data)
 
-# Example Use:
+
+# Example Use (for debugging purposes):
 if __name__ == '__main__':
+    def assets_file_str_func(universe, assets):
+        asset_nums = [asset.split(' ',1)[1] for asset in assets]
+        return [universe + f'_{num}_' + 'features' for num in asset_nums]
+    
     DATA_PATH = '/Users/austingalm/Documents/GitHub/fpi_project_lab_autumn2024/data/'
+    CLASSIFIER_DATA_PATH = DATA_PATH + 'classifier_full/'
     ANALYSIS_PATH = '/Users/austingalm/Documents/GitHub/fpi_project_lab_autumn2024/analysis/'
-    with open(ANALYSIS_PATH + '/classifier_features.txt', 'r') as file:
-        FEATURES = [line.strip() for line in file]
     
-    backtest = Backtest(model=RandomForestClassifier(), base_per='2020-04-20', update_freq=26)
-    backtest.read_returns(data_path=DATA_PATH, universe_returns='broad_assets_weekly_rets')
-    backtest.compute_lookbacks()
-    backtest.read_features(data_path=DATA_PATH, features=FEATURES)
+    UNIVERSE = 'broad_asset'    # SELECT UNIVERSE HERE: 'equity_domestic', 'broad_asset', 'equity_global'
+    if UNIVERSE == 'equity_domestic':
+        ASSETS = ['Asset ' + str(i) for i in range(1, 47)]
+        
+        eqd_backtest = Backtest(model=RandomForestClassifier(), base_per='2004-04-10', update_freq=6)
+        eqd_backtest.read_returns(data_path=DATA_PATH, universe_returns='equity_domestic_monthly_rets')
+        eqd_backtest.compute_lookbacks(data_freq='monthly')
+        # backtest.read_features(data_path=CLASSIFIER_DATA_PATH, features=FEATURES)
+        eqd_backtest.read_data(data_path=DATA_PATH, assets=ASSETS, universe=UNIVERSE, file_str_func=assets_file_str_func)
+
+        param_grid = {#'pca__n_components': [0.9],
+                'classifier__n_estimators': [10], 
+                'classifier__min_samples_split': [300], 
+                'classifier__max_depth': [2],}    # 'classifier__class_weight':['balanced_subsample']
+        eqd_backtest.record_strat_rets(assets=ASSETS, param_grid=param_grid)
     
-    assets = ['Asset 1', 'Asset 2', 'Asset 3', 'Asset 4', 'Asset 5', 'Asset 6', 
-              'Asset 7', 'Asset 8', 'Asset 9', 'Asset 10', 'Asset 11']
-    param_grid = {'n_estimators': 10, 'min_samples_split': 300, 'max_depth': 2, 'class_weight':'balanced_subsample'}
-    backtest.record_strat_rets(assets=assets, param_grid=param_grid)
-    # backtest.performance_summary()
+    elif UNIVERSE == 'broad_asset':
+        ASSETS = ['Asset ' + str(i) for i in range(1, 12)]
+
+        backtest = Backtest(model=RandomForestClassifier(), base_per='2004-04-20', update_freq=26)
+        backtest.read_returns(data_path=DATA_PATH, universe_returns='broad_assets_weekly_rets')
+        backtest.compute_lookbacks()
+        # backtest.read_features(data_path=CLASSIFIER_DATA_PATH, features=FEATURES)
+        backtest.read_data(data_path=DATA_PATH, assets=ASSETS, universe=UNIVERSE, file_str_func=assets_file_str_func)
+
+        param_grid = {#'pca__n_components': [0.9],
+              'classifier__n_estimators': [10], 
+              'classifier__min_samples_split': [300], 
+              'classifier__max_depth': [2],}    # 'classifier__class_weight':['balanced_subsample']
+        backtest.record_strat_rets(assets=ASSETS, param_grid=param_grid)
+
+    else:
+        ASSETS = ['Asset ' + str(i) for i in range(1, 12)]
+
+        backtest = Backtest(model=RandomForestClassifier(), base_per='2007-04-20', update_freq=26)
+        backtest.read_returns(data_path=DATA_PATH, universe_returns='equity_global_monthly_rets')
+        backtest.compute_lookbacks()
+        # backtest.read_features(data_path=CLASSIFIER_DATA_PATH, features=FEATURES)
+        backtest.read_data(data_path=DATA_PATH, assets=ASSETS, universe=UNIVERSE, file_str_func=assets_file_str_func)
+
+        param_grid = {#'pca__n_components': [0.9],
+              'classifier__n_estimators': [10], 
+              'classifier__min_samples_split': [300], 
+              'classifier__max_depth': [2],}    # 'classifier__class_weight':['balanced_subsample']
+        backtest.record_strat_rets(assets=ASSETS, param_grid=param_grid)
+
