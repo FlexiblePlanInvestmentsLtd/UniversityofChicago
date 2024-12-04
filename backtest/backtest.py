@@ -3,14 +3,17 @@ import numpy as np
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
+from sklearnex import patch_sklearn
+patch_sklearn()
 from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.decomposition import PCA
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, RandomizedSearchCV
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import RandomForestClassifier
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score, f1_score
+from scipy.optimize import minimize
 
 import sys
 import os
@@ -43,8 +46,16 @@ class FeaturesTargetsLengthException(Exception):
 class Backtest:
     # Note: This class could be generalized to a base class that has child classes for backtesting different
     # classes of models
-    def __init__(self, model, base_per, update_freq):
-        self.model = Classifier(model)
+    def __init__(self, model: dict, base_per, update_freq: int):
+        """
+        Initialize the backtest object with a model, base period, and update frequency.
+        The base period is the starting date for the backtest and the update frequency is the number of weeks.
+
+        :param model: A dictionary of the model and dimensionality reduction object to be used in the backtest
+        :param base_per: The starting date for the backtest
+        :param update_freq: The number of weeks between updates
+        """
+        self.model = Classifier(**model)
         self.base_per = datetime.datetime.strptime(base_per, '%Y-%m-%d')
         self.assets = {}
         self.target = None
@@ -53,7 +64,14 @@ class Backtest:
         self.dates_inter = None
         self.returns = None
         self.predictions = None
-        self.strat_rets = None
+        self.mvo_weights = None
+        self.risk_parity_weights = None
+        self.strat_rets = pd.DataFrame()  
+        
+        # Attempting to speed up MVO with parallelism
+        ray.init(address='auto', 
+                 logging_level=logging.FATAL, 
+                 log_to_driver=False, ignore_reinit_error=True)
 
     def read_returns(self, data_path, universe_returns):
         self.returns = pd.read_excel(data_path + universe_returns + '.xlsx', index_col=0, parse_dates=True)
@@ -134,7 +152,7 @@ class Backtest:
     def generate_preds(self, data):
         return self.model.predict(data)
 
-    def record_strat_rets(self, assets, param_grid):    # TODO: Revise this after the feature pipeline is updated
+    def record_predictions(self, assets, param_grid):
         # Loop: 
         self.predictions = pd.DataFrame(columns=assets)
         for i in range(len(self.lookbacks)):
@@ -167,17 +185,136 @@ class Backtest:
 
         # After Loop:
         # Use the predictions and the returns data to calculate self.strat_rets attribute
+        # TODO: Break this out into a separate method that calculates weights based on a selection
         try:
             start = self.lookbacks[0] + timedelta(days=1)
             self.predictions.index = self.dates_inter[self.dates_inter >= start]
-            counts = self.predictions.sum(axis=1).to_list() # Equal weighting of assets -> update to Ridge MVO
-            counts = pd.Series([1/count if count != 0 else 0 for count in counts], index=self.predictions.index)
-            selections = self.predictions.multiply(counts, axis=0)
-            self.strat_rets = ((self.returns.loc[self.predictions.index] * selections)
-                               .sum(axis=1)
-                               .to_frame('ML-Strategy Returns'))
+            # Cut the function off here and move below to new strat returns method
+            # counts = self.predictions.sum(axis=1).to_list()
+            # counts = pd.Series([1/count if count != 0 else 0 for count in counts], index=self.predictions.index)
+            # selections = self.predictions.multiply(counts, axis=0)
+            # self.strat_rets = ((self.returns.loc[self.predictions.index] * selections)
+            #                    .sum(axis=1)
+            #                    .to_frame('ML-Strategy Returns'))
         except TypeError:
-            print('A TypeError was raised in the final step. Test the final multiplication for stat returns.')
+            print('A TypeError was raised in the final step. Test the final multiplication for strat returns.')
+
+    @staticmethod
+    def ridge_MV_optimization(returns, selections, sigma, ridge_penalty, look_back):
+        """
+        Computes a ridge-regularized mean-variance optimization for each row in the selections.
+        The optimization is performed on the assets with positive returns in the row.
+        The optimization is performed on the data from the previous look_back days.
+        The optimization is performed with the following objective function:
+        - Portfolio return - ridge_penalty * sum(weights^2)
+        The optimization is subject to the following constraints:
+        - Sum of weights = 1
+        - Portfolio variance <= sigma
+        The optimization is performed using the SLSQP method.
+        The optimal weights are stored in a matrix with the same shape as the selections.
+        The optimal weights are stored in the same order as the assets in the selections.
+        
+        :param returns: A DataFrame with the data for the assets. It takes shape (number of days, number of assets).
+        :param selections: A DataFrame with the classifier selections for each asset. This must have the same shape as the data parameter.
+        :param sigma: A float with the maximum portfolio variance.
+        :param ridge_penalty: A float with the ridge penalty.
+        :param look_back: An integer with the number of days to look back.
+        """
+        weight_matrix = [[0 for _ in range(selections.shape[1]-1)] for _ in range(selections.shape[0])]
+        ind_dict = {f'Asset {i}':i-1 for i in range(1, len(selections.columns)+1)}
+        diff = len(returns) - len(selections) - 1
+
+        for i in range(0, selections.shape[0]):
+            row = selections.iloc[i, 1:]
+            positive_selections = row[row>0]
+            # NOTE: positive_selections.index is a series, and the index is equal to the columns of the data DataFrame.
+            # NOTE: target_matrix is a DataFrame with the data for the assets selected for the lookback period.
+            target_matrix = returns.loc[diff+i-look_back+1:diff+i, positive_selections.index]
+            
+            # Using target_matrix to compute the covariance matrix and the mean return
+            covariance_matrix = target_matrix.cov().values
+            mean_return = target_matrix.mean().values
+            num_of_assets = len(mean_return)
+            if (num_of_assets==0):
+                continue
+            # optimization
+            def objective(weights):
+                portfolio_return = np.dot(weights, mean_return)
+                ridge_term = ridge_penalty*np.sum(weights**2)
+                # Why are we taking the negative of this term?
+                return -(portfolio_return-ridge_term)
+            def variance_constraint(weights):
+                portfolio_variance = np.dot(weights.T, np.dot(covariance_matrix, weights))
+                return sigma-portfolio_variance
+            constrains = [{'type':'eq', 'fun':lambda weights: np.sum(weights)-1}, 
+                        {'type':'ineq', 'fun': variance_constraint}]
+            bounds = tuple((0,1) for _ in range(num_of_assets))
+            initial_weights = num_of_assets*[1/num_of_assets]
+            
+            result = minimize(objective, initial_weights, method='SLSQP', bounds=bounds, constraints=constrains)
+            optimal_weight = result.x if result.success else np.zeros(num_of_assets)
+            
+            for j in range(len(optimal_weight)):
+                asset = positive_selections.index[j]
+                ind = ind_dict[asset]
+                weight_matrix[i][ind] = optimal_weight[j]
+
+        return weight_matrix
+    
+    def calc_strat_rets(self, strat_name: str, selection: str, weighting: str, mvo_params: dict=None, momentum_period: int=None):
+        """
+        Records strategy returns based on the selections and weights selected
+        :param strat_name: The name of the strategy
+        :param selection: Choice of selections type.
+            - 'momentum': Benchmark Strategy that selects assets that had positive returns over period
+            - 'classifier': Strategy that selects assets based on the classifier predictions
+            - None: Include all assets in the universe for the weighting step
+        :param weighting: Choice of weighting methodology
+            - 'equal': Equal weighting of assets
+            - 'risk-parity': Scale weights based on inverse of asset volatility
+            - 'ridge_MVO': Ridge-regularized mean-variance optimization
+        :param mvo_params: Dictionary of parameters for the mean-variance optimization
+            - 'sigma': Maximum portfolio variance
+            - 'ridge_penalty': Ridge penalty
+            - 'look_back': Number of days to look back
+        """
+        # Logic for obtaining selections dataframe
+        if selection == 'classifier':
+            selections = self.predictions
+        elif selection == 'momentum':
+            if momentum_period:
+                lag = self.returns.rolling(window=momentum_period).apply(lambda x: np.prod(1 + x) - 1, raw=False)
+                selections = pd.DataFrame(np.where(lag.shift(1) > 0, 1, 0), columns=self.returns.columns, index=self.returns.index)
+            else:
+                selections = pd.DataFrame(np.where(self.returns.shift(1) > 0, 1, 0), columns=self.returns.columns, index=self.returns.index)
+        else:
+            selections = pd.DataFrame(np.where(self.returns != 0, 1, 0), columns=self.returns.columns, index=self.returns.index)
+        
+        # Logic for calculating weights of selections
+        counts = selections.sum(axis=1).to_list()
+        if weighting == 'ridge_MVO':
+            if (not mvo_params or
+                'sigma' not in mvo_params or
+                'ridge_penalty' not in mvo_params or
+                'look_back' not in mvo_params):
+                raise ValueError('Missing or mis-named parameters for the mean-variance optimization')
+            rets = self.returns.reset_index()
+            select = selections.reset_index()
+            with parallel_backend('ray'):   # Attempting to speed up MVO with parallelism
+                weights = self.ridge_MV_optimization(rets, select, **mvo_params)
+            del rets, select
+            weights = pd.DataFrame(weights, index=selections.index, columns=selections.columns).shift(1).dropna()
+            self.mvo_weights = weights
+        elif weighting == 'risk-parity':
+            raise NotImplementedError('Risk Parity weighting has not been implemented yet. Please select another weighting method.')
+        else:
+            weights = pd.Series([1/count if count != 0 else 0 for count in counts], index=selections.index)
+            del counts
+            weights = selections.multiply(weights, axis=0)
+
+        # Calculation of strategy returns using the weights and the returns data
+        self.strat_rets[f'{strat_name} Strategy'] = ((self.returns.loc[selections.index] * weights)
+                                                     .sum(axis=1))
 
     def performance_summary(self):
         # Generate a summary table and cumulative returns plot
@@ -191,9 +328,12 @@ class Backtest:
 
 
 class Classifier:
-    def __init__(self, model):
+    random_state = 42
+    def __init__(self, model, dim_red):
         self.pipeline = None
         self.model = model
+        self.dim_red = dim_red
+        self.model.random_state = Classifier.random_state
         self._params_hist = []
         
         # Attempting to speed up training with parallelism
@@ -204,13 +344,13 @@ class Classifier:
     def train(self, param_grid, features, target):
         memory = Memory(location='cache_dir', verbose=0)
         pipeline = Pipeline([
-            ('scaler', MinMaxScaler()),
-            ('pca', PCA()),
+            ('dim_red', self.dim_red),
             ('classifier', self.model)
         ], memory=memory)
 
         cv = StratifiedKFold(n_splits=5)
-        grid_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, cv=cv)
+        grid_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, cv=cv, scoring='f1',
+                                         random_state=Classifier.random_state)
         
         with parallel_backend('ray'):   # Attempting to speed up training with parallelism
             grid_search.fit(features, target)
