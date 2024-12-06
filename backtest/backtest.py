@@ -3,8 +3,8 @@ import numpy as np
 from datetime import datetime, timedelta
 from dateutil.relativedelta import relativedelta
 
-from sklearnex import patch_sklearn
-patch_sklearn()
+# from sklearnex import patch_sklearn
+# patch_sklearn()
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
@@ -76,7 +76,41 @@ class Backtest:
     def read_returns(self, data_path, universe_returns):
         self.returns = pd.read_excel(data_path + universe_returns + '.xlsx', index_col=0, parse_dates=True)
 
-    def read_data(self, data_path, universe, assets, file_str_func=None):
+    @staticmethod
+    def set_targets(target, method=None):
+        """
+        Provides different methods for calculating the target variables for classifier training.
+        :param method: The method for setting the target variable
+            - 'global_mean': Set the target to 1 for returns greater than the global mean up to a date
+            - 'asset_mean': Set the target to 1 for returns greater than the asset mean up to a date
+            - 'global_std': Set the target to 1 for returns greater than the global mean + std up to a date
+            - 'asset_std': Set the target to 1 for returns greater than the asset mean + std up to a date
+        """
+        if method == 'global_mean':
+            threshold = target.expanding().mean().mean(axis=1).apply(lambda x: max(x, 0))
+            return pd.DataFrame(np.where((target.T > threshold).T, 1, 0), columns=target.columns, index=target.index)
+        
+        elif method == 'asset_mean':
+            threshold = target.expanding().mean().apply(lambda x: [max(i, 0) for i in x])
+            return pd.DataFrame(np.where(target > threshold, 1, 0), columns=target.columns, index=target.index)
+        
+        elif method == 'global_std':
+            mean = target.expanding().mean().mean(axis=1)
+            std = target.expanding(method='table').apply(lambda x: np.std(x), raw=True, engine='numba').iloc[:, 0]
+            threshold = (mean + std).apply(lambda x: max(x, 0))
+            return pd.DataFrame(np.where((target.T > threshold).T, 1, 0), columns=target.columns, index=target.index)
+        
+        elif method == 'asset_std':
+            mean = target.expanding().mean().apply(lambda x: [max(i, 0) for i in x])
+            std = target.expanding().std()
+            return pd.DataFrame(np.where(target > mean + std, 1, 0), columns=target.columns, index=target.index)
+       
+        else:
+            if method not in ('basic', None):
+                print('Invalid method for setting target variable. Defaulting to basic method.')
+            return pd.DataFrame(np.where(target > 0, 1, 0), columns=target.columns, index=target.index)
+    
+    def read_data(self, data_path, universe, assets, file_str_func=None, target_threshold=None):
         if file_str_func:
             file_names = file_str_func(universe=universe, assets=assets)
             for asset, file in zip(assets, file_names):
@@ -99,8 +133,8 @@ class Backtest:
         self.dates_inter = dates_inter
 
         target = self.returns.shift(-1).dropna()
-        target = target.loc[dates_inter]
-        self.target = pd.DataFrame(np.where(target > 0, 1, 0), columns=target.columns, index=target.index)
+        target = target.loc[self.dates_inter]
+        self.target = Backtest.set_targets(target=target, method=target_threshold)
 
     def build_training_dataset(self, training_per):
         features_df = pd.concat([asset.loc[:training_per] for asset in self.assets.values()], axis=0)
@@ -152,7 +186,7 @@ class Backtest:
     def generate_preds(self, data):
         return self.model.predict(data)
 
-    def record_predictions(self, assets, param_grid):
+    def record_predictions(self, assets, param_grid=None):
         # Loop: 
         self.predictions = pd.DataFrame(columns=assets)
         for i in range(len(self.lookbacks)):
@@ -341,23 +375,25 @@ class Classifier:
                  logging_level=logging.FATAL, 
                  log_to_driver=False, ignore_reinit_error=True)
         
-    def train(self, param_grid, features, target):
+    def train(self, features, target, param_grid=None):
         memory = Memory(location='cache_dir', verbose=0)
         pipeline = Pipeline([
             ('dim_red', self.dim_red),
             ('classifier', self.model)
         ], memory=memory)
 
-        cv = StratifiedKFold(n_splits=5)
-        grid_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, cv=cv, scoring='f1',
-                                         random_state=Classifier.random_state)
-        
-        with parallel_backend('ray'):   # Attempting to speed up training with parallelism
-            grid_search.fit(features, target)
-            # print(grid_search.best_params_)
-        
-        self._params_hist.append(grid_search.best_params_)
-        self.pipeline = grid_search.best_estimator_
+        if param_grid:
+            cv = StratifiedKFold(n_splits=5)
+            grid_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, cv=cv, scoring='f1',
+                                            random_state=Classifier.random_state)
+            with parallel_backend('ray'):   # Attempting to speed up training with parallelism
+                grid_search.fit(features, target)
+                # print(grid_search.best_params_)
+            self._params_hist.append(grid_search.best_params_)
+            self.pipeline = grid_search.best_estimator_
+        else:
+            with parallel_backend('ray'):
+                self.pipeline = pipeline.fit(features, target)
 
     def predict(self, data):
         return self.pipeline.predict(data)
