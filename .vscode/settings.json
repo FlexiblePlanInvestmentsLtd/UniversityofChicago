@@ -1,0 +1,47 @@
+{
+  "python.envFile": "${workspaceFolder}/.env",
+  "python.pipenvPath": "/opt/python/venvs/uofc",
+  "python.defaultInterpreterPath": "/opt/python/venvs/uofc/bin/python3",
+  "python.analysis.extraPaths": [
+    "/home/gayan/documents/projectx_python",
+    "/home/gayan/documents/projectx_python/src",
+    "/opt/python/venvs/uofc/lib/python3.11"
+    //"/opt/python/venvs/uofc/lib/python3.11/site-packages" -- Mypy is not working with this
+  ],
+  "python.terminal.activateEnvInCurrentTerminal": true,
+  //"python.autoComplete.extraPaths": ["/srv/FPIProjects/PYTHON/LIBs/FPIResearch"],
+  "python.testing.pytestArgs": ["tests"],
+  "jupyter.notebookFileRoot": "${workspaceFolder}/src",
+
+  "mypy-type-checker.args": ["--config-file=pyproject.toml"],
+  "ruff.lint.args": ["--config=./pyproject.toml"],
+
+  "sonarlint.testFilePattern": "test/**/test__*.py",
+  "sonarlint.connectedMode.project": {
+    "connectionId": "FPISonarQube",
+    "projectKey": "ProjectX-Python"
+  },
+
+  "git.branchProtection": ["main", "develop"],
+  "gitlens.remotes": [
+    {
+      "domain": "gitlab.flexibleplan.com",
+      "type": "GitLab"
+    }
+  ],
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "**/Thumbs.db": true,
+    "**/__init__.py": true,
+    "**/*.pyc": true,
+    "**/__pycache__": true,
+    "**/.ipynb_checkpoints": true
+  },
+  "explorerExclude.backup": {}
+}
