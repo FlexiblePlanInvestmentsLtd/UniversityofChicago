@@ -21,9 +21,9 @@ import logging
 import threading
 from joblib import Memory, parallel_backend
 import joblib
-from ray.util.joblib import register_ray
-import ray
-register_ray()
+# from ray.util.joblib import register_ray
+# import ray
+# register_ray()
 
 current_dir = os.getcwd()
 parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
@@ -69,9 +69,9 @@ class Backtest:
         self.strat_rets = pd.DataFrame()  
         
         # Attempting to speed up MVO with parallelism
-        ray.init(address='auto', 
-                 logging_level=logging.FATAL, 
-                 log_to_driver=False, ignore_reinit_error=True)
+        # ray.init(address='auto', 
+        #          logging_level=logging.FATAL, 
+        #          log_to_driver=False, ignore_reinit_error=True)
 
     def read_returns(self, data_path, universe_returns):
         self.returns = pd.read_excel(data_path + universe_returns + '.xlsx', index_col=0, parse_dates=True)
@@ -223,13 +223,6 @@ class Backtest:
         try:
             start = self.lookbacks[0] + timedelta(days=1)
             self.predictions.index = self.dates_inter[self.dates_inter >= start]
-            # Cut the function off here and move below to new strat returns method
-            # counts = self.predictions.sum(axis=1).to_list()
-            # counts = pd.Series([1/count if count != 0 else 0 for count in counts], index=self.predictions.index)
-            # selections = self.predictions.multiply(counts, axis=0)
-            # self.strat_rets = ((self.returns.loc[self.predictions.index] * selections)
-            #                    .sum(axis=1)
-            #                    .to_frame('ML-Strategy Returns'))
         except TypeError:
             print('A TypeError was raised in the final step. Test the final multiplication for strat returns.')
 
@@ -334,8 +327,8 @@ class Backtest:
                 raise ValueError('Missing or mis-named parameters for the mean-variance optimization')
             rets = self.returns.reset_index()
             select = selections.reset_index()
-            with parallel_backend('ray'):   # Attempting to speed up MVO with parallelism
-                weights = self.ridge_MV_optimization(rets, select, **mvo_params)
+            # with parallel_backend('ray'):   # Attempting to speed up MVO with parallelism
+            weights = self.ridge_MV_optimization(rets, select, **mvo_params)
             del rets, select
             weights = pd.DataFrame(weights, index=selections.index, columns=selections.columns).shift(1).dropna()
             self.mvo_weights = weights
@@ -367,13 +360,14 @@ class Classifier:
         self.pipeline = None
         self.model = model
         self.dim_red = dim_red
-        self.model.random_state = Classifier.random_state
+        if self.model is not None:
+            self.model.random_state = Classifier.random_state
         self._params_hist = []
         
         # Attempting to speed up training with parallelism
-        ray.init(address='auto', 
-                 logging_level=logging.FATAL, 
-                 log_to_driver=False, ignore_reinit_error=True)
+        # ray.init(address='auto', 
+        #          logging_level=logging.FATAL, 
+        #          log_to_driver=False, ignore_reinit_error=True)
         
     def train(self, features, target, param_grid=None):
         memory = Memory(location='cache_dir', verbose=0)
@@ -386,14 +380,14 @@ class Classifier:
             cv = StratifiedKFold(n_splits=5)
             grid_search = RandomizedSearchCV(pipeline, param_distributions=param_grid, cv=cv, scoring='f1',
                                             random_state=Classifier.random_state)
-            with parallel_backend('ray'):   # Attempting to speed up training with parallelism
-                grid_search.fit(features, target)
+            # with parallel_backend('ray'):   # Attempting to speed up training with parallelism
+            grid_search.fit(features, target)
                 # print(grid_search.best_params_)
             self._params_hist.append(grid_search.best_params_)
             self.pipeline = grid_search.best_estimator_
         else:
-            with parallel_backend('ray'):
-                self.pipeline = pipeline.fit(features, target)
+            # with parallel_backend('ray'):
+            self.pipeline = pipeline.fit(features, target)
 
     def predict(self, data):
         return self.pipeline.predict(data)

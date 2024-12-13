@@ -1,0 +1,842 @@
+XGBoost-LDA Asset Mean Threshold Hyperparameters History:
+	broad_asset Backtest Period 0 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 1 Params:
+		dim_red__n_components: None
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 2 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 3 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 4 Params:
+		dim_red__n_components: None
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 5 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 6 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 7 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 8 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 9 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 10 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 11 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 12 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 13 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 14 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 15 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 16 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 17 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 18 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 4
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 19 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 20 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 21 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 22 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 23 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 24 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 4
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 25 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 26 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 27 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 28 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 29 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 30 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 31 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 32 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 33 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 34 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 35 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 36 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 37 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 38 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 39 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+XGBoost-LDA Basic Threshold Hyperparameters History:
+	broad_asset Backtest Period 0 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 1 Params:
+		dim_red__n_components: None
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 2 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 3 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 4 Params:
+		dim_red__n_components: None
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 5 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 6 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 7 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 8 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 9 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 10 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 11 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 12 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 13 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 14 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 15 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 16 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 17 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 18 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 4
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 19 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 20 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 21 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 22 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 23 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 24 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 4
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 25 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 26 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 27 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 28 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 29 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 30 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 30
+		classifier__max_depth: 8
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 31 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 32 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 33 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 34 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 35 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 36 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 37 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 38 Params:
+		dim_red__n_components: 0.95
+		classifier__n_estimators: 500
+		classifier__min_samples_split: 1000
+		classifier__max_depth: 64
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 39 Params:
+		dim_red__n_components: 0.975
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 2
+		classifier__max_depth: 4
+		classifier__class_weight: None
+
+	broad_asset Backtest Period 40 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 41 Params:
+		dim_red__n_components: None
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 200
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 42 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 50
+		classifier__min_samples_split: 50
+		classifier__max_depth: 32
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 43 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 10
+		classifier__min_samples_split: 30
+		classifier__max_depth: 16
+		classifier__class_weight: balanced_subsample
+
+	broad_asset Backtest Period 44 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 45 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 46 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 47 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 48 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 49 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 50 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 51 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 52 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 53 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 54 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 55 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 56 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 57 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 58 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 59 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 60 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 61 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 62 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 63 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 64 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 65 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 66 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 67 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 68 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 69 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 70 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 71 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 72 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 73 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 74 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 75 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 76 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 77 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 78 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
+	broad_asset Backtest Period 79 Params:
+		dim_red__n_components: 0.99
+		classifier__n_estimators: 100
+		classifier__min_samples_split: 700
+		classifier__max_depth: 2
+		classifier__class_weight: balanced
+
