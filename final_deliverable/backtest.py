@@ -30,7 +30,7 @@ parent_dir = os.path.abspath(os.path.join(current_dir, os.pardir))
 grandparent_dir = os.path.abspath(os.path.join(parent_dir, os.pardir))
 sys.path.insert(0, parent_dir)
 sys.path.insert(0, grandparent_dir)
-from backtest.utils_backtest import *
+from final_deliverable.utils_final import *
 
 # TODO: Add a logger for model training details
 class MissingHistoricalReturns(Exception):
